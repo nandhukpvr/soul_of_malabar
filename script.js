@@ -764,86 +764,56 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
 
-    bookingForm.addEventListener(
-        "submit",
-        event => {
+    bookingForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-            event.preventDefault();
+    const name = document.getElementById("guestName").value.trim();
+    const phone = document.getElementById("guestPhone").value.trim();
+    const date = document.getElementById("bookingDate").value;
+    const guests = document.getElementById("guestCount").value;
+    const packageName = document.getElementById("packageSelect").value;
+    const message = document.getElementById("guestMessage").value.trim();
 
+    if (!name || !phone || !date || !packageName) {
+        alert("Please fill all required fields.");
+        return;
+    }
 
-            const name =
-                document.getElementById(
-                    "guestName"
-                ).value.trim();
+    const formData = {
+        name,
+        phone,
+        date,
+        guests,
+        packageName,
+        message
+    };
 
-            const phone =
-                document.getElementById(
-                    "guestPhone"
-                ).value.trim();
+    try {
+        const response = await fetch("https://formsubmit.co/ajax/193cc00cc001ffb737e8dd7c77205a70", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                _subject: "New Soul of Malabar enquiry",
+                ...formData
+            })
+        });
 
-            const date =
-                document.getElementById(
-                    "bookingDate"
-                ).value;
-
-            const guests =
-                document.getElementById(
-                    "guestCount"
-                ).value;
-
-            const packageName =
-                document.getElementById(
-                    "packageSelect"
-                ).value;
-
-
-            if (!name ||
-                !phone ||
-                !date ||
-                !packageName) {
-
-                alert(
-                    "Please complete all required fields."
-                );
-
-                return;
-
-            }
-
-
-            /*
-             * At this stage this is a front-end
-             * booking request.
-             *
-             * Later you can connect this form
-             * to PHP / Python / Node.js / database
-             * / WhatsApp / email.
-             */
-
-
-            console.log({
-
-                name,
-                phone,
-                date,
-                guests,
-                packageName
-
-            });
-
-
-            successModal.classList.add(
-                "active"
-            );
-
-            document.body.style.overflow =
-                "hidden";
-
-
-            bookingForm.reset();
-
+        if (!response.ok) {
+            throw new Error("Send failed");
         }
-    );
+
+        successModal.classList.add("active");
+        document.body.style.overflow = "hidden";
+        bookingForm.reset();
+
+    } catch (error) {
+        alert("Something went wrong while sending the request. Please try again or use WhatsApp.");
+        console.error(error);
+    }
+});
 
 
     successClose.addEventListener(
